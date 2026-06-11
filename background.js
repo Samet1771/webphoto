@@ -18,7 +18,8 @@ const DEFAULTS = {
   quality: 0.92,
   maxSegmentHeight: 20000, // device px; pages taller than this are split
   delay: 250, // ms to wait after scrolling before capturing
-  hideFixed: true
+  hideFixed: true,
+  scrollArea: "auto" // "auto" | "page" | "element" (inner JS scroll container)
 };
 
 // Firefox canvases cap out around 32767px per side; stay comfortably under it.
@@ -92,35 +93,32 @@ async function captureVisible(windowId) {
   return dataUrl;
 }
 
-// Unique scroll stops covering [0, total) in `step` increments, with the last
-// stop clamped so we never scroll past the end.
-function buildStops(total, step) {
-  if (step <= 0) return [0];
-  const stops = [];
-  const maxStart = Math.max(0, total - step);
-  for (let p = 0; p < total; p += step) {
-    stops.push(Math.min(p, maxStart));
-  }
-  return stops.filter((v, i) => stops.indexOf(v) === i);
-}
+// Draw the cropped part of a captured frame (`src`, in device px within the
+// captured image) onto whichever output segment canvases it overlaps, at the
+// content position `dest` (device px). Handles tiles that straddle a segment
+// boundary by slicing the source vertically.
+function placeTile(segments, img, src, dest) {
+  // Clamp the source rectangle to the actual captured image bounds.
+  const sx = Math.max(0, Math.min(src.x, img.width));
+  const sy = Math.max(0, Math.min(src.y, img.height));
+  const sw = Math.max(0, Math.min(src.w, img.width - sx));
+  const sh = Math.max(0, Math.min(src.h, img.height - sy));
+  if (sw <= 0 || sh <= 0) return;
 
-// Draw a captured tile (already in device pixels) onto whichever segment
-// canvases it overlaps.
-function placeTile(segments, img, destX, destY) {
-  const imgTop = destY;
-  const imgBottom = destY + img.height;
+  const tileTop = dest.y;
+  const tileBottom = dest.y + sh;
   for (const seg of segments) {
     const segTop = seg.top;
     const segBottom = seg.top + seg.canvas.height;
-    const top = Math.max(imgTop, segTop);
-    const bottom = Math.min(imgBottom, segBottom);
+    const top = Math.max(tileTop, segTop);
+    const bottom = Math.min(tileBottom, segBottom);
     if (bottom <= top) continue;
-    const sourceY = top - imgTop;
-    const height = bottom - top;
+    const offset = top - tileTop; // how far into the tile this slice starts
+    const sliceH = bottom - top;
     seg.ctx.drawImage(
       img,
-      0, sourceY, img.width, height, // source rectangle
-      destX, top - segTop, img.width, height // destination on this segment
+      sx, sy + offset, sw, sliceH, // source rectangle within the captured frame
+      dest.x, top - segTop, sw, sliceH // destination on this segment
     );
   }
 }
@@ -185,24 +183,20 @@ async function exportSegments(segments, options, title) {
 async function captureFullPage(tab, options) {
   const windowId = tab.windowId;
 
-  const metrics = await browser.tabs.sendMessage(tab.id, { cmd: "prepare" });
+  // The content script decides what actually scrolls (window or an inner
+  // overflow container) and returns a capture plan in CSS pixels.
+  const plan = await browser.tabs.sendMessage(tab.id, {
+    cmd: "prepare",
+    options: { scrollArea: options.scrollArea }
+  });
   try {
-    const dpr = metrics.devicePixelRatio || 1;
-    const vw = metrics.viewportWidth;
-    const vh = metrics.viewportHeight;
-    const totalW = metrics.totalWidth;
-    const totalH = metrics.totalHeight;
-
-    const xs = buildStops(totalW, vw);
-    const ys = buildStops(totalH, vh);
-
-    const totalWpx = Math.round(totalW * dpr);
-    const totalHpx = Math.round(totalH * dpr);
+    const dpr = plan.devicePixelRatio || 1;
+    const totalWpx = Math.round(plan.outputWidth * dpr);
+    const totalHpx = Math.round(plan.outputHeight * dpr);
 
     // Decide how tall each output image may be (the auto-split logic).
     let segHeight = Math.min(options.maxSegmentHeight || CANVAS_MAX, CANVAS_MAX);
-    const minSeg = Math.ceil(vh * dpr);
-    if (segHeight < minSeg) segHeight = minSeg;
+    if (segHeight < 1) segHeight = CANVAS_MAX;
     const numSegments = Math.max(1, Math.ceil(totalHpx / segHeight));
 
     const segments = [];
@@ -215,13 +209,15 @@ async function captureFullPage(tab, options) {
       segments.push({ canvas, ctx: canvas.getContext("2d"), top });
     }
 
+    const xs = plan.xs;
+    const ys = plan.ys;
     const totalTiles = xs.length * ys.length;
     let done = 0;
     let first = true;
 
     for (const y of ys) {
       for (const x of xs) {
-        const actual = await browser.tabs.sendMessage(tab.id, { cmd: "scrollTo", x, y });
+        const r = await browser.tabs.sendMessage(tab.id, { cmd: "scrollTo", x, y });
 
         // After the first tile, optionally hide floating/sticky headers so
         // they don't repeat in every screen.
@@ -234,7 +230,14 @@ async function captureFullPage(tab, options) {
         const dataUrl = await captureVisible(windowId);
         const img = await loadImage(dataUrl);
 
-        placeTile(segments, img, Math.round(actual.x * dpr), Math.round(actual.y * dpr));
+        const src = {
+          x: Math.round(r.crop.x * dpr),
+          y: Math.round(r.crop.y * dpr),
+          w: Math.round(r.crop.w * dpr),
+          h: Math.round(r.crop.h * dpr)
+        };
+        const dest = { x: Math.round(r.dest.x * dpr), y: Math.round(r.dest.y * dpr) };
+        placeTile(segments, img, src, dest);
 
         first = false;
         done++;

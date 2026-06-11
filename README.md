@@ -7,6 +7,7 @@ multiple images so nothing gets cut off or fails to save.
 ## Features
 
 - 📸 **Full-page capture** — scrolls the page and stitches every viewport into one image.
+- 🧩 **Works with inner JS scroll areas** — many web apps (chat apps, dashboards, docs viewers) don't scroll the window; they scroll an inner `overflow:auto` container. The extension auto-detects the real scroll container and captures *that*. You can also force **Whole page** or **Inner scroll area** in Options.
 - ✂️ **Auto-split for long pages** — anything taller than your threshold (default `20000px`) is saved as `…-1of3`, `…-2of3`, … instead of one oversized file that the browser would reject.
 - 🖼️ **Visible-area capture** — grab just what's currently on screen.
 - 🎚️ **PNG or JPEG** — choose lossless PNG or smaller JPEG with an adjustable quality slider.
@@ -53,6 +54,7 @@ Firefox's ~32767px canvas limit), and each segment is encoded and saved.
 
 ## Options
 
+- **Scroll area** — *Auto-detect* (default; uses the window or the inner container with the most hidden content), *Whole page* (force window scrolling), or *Inner scroll area* (force the detected overflow container).
 - **Format** — PNG (lossless) or JPEG (smaller; quality slider appears).
 - **Split when taller than** — max height per image in pixels before splitting (`2000`–`32000`).
 - **Capture delay** — wait after each scroll before capturing (raise it on pages with slow/lazy-loading content).
@@ -62,3 +64,5 @@ Firefox's ~32767px canvas limit), and each segment is encoded and saved.
 
 - Restricted pages (`about:`, `addons.mozilla.org`, `view-source:`, the PDF viewer) can't be scripted, so full-page capture isn't available there.
 - Infinite-scroll / lazy-loading pages are measured once at the start; content that only loads as you scroll past the initial height may not be captured. Increasing the capture delay helps.
+- **Transform-based scroll-jacking** (libraries like fullPage.js that move content with CSS transforms on wheel events instead of real scrolling) exposes no scrollable element, so only the first screen can be captured. Standard `overflow:auto/scroll` containers *are* supported.
+- A captured scroll container is assumed to fit within the viewport (the usual case). If a container is itself taller than the window, only its on-screen portion is captured.

@@ -12,7 +12,8 @@ const DEFAULTS = {
   quality: 0.92,
   maxSegmentHeight: 20000,
   delay: 250,
-  hideFixed: true
+  hideFixed: true,
+  scrollArea: "auto"
 };
 
 const $ = (id) => document.getElementById(id);
@@ -29,7 +30,8 @@ function readOptions() {
     quality: parseFloat($("quality").value),
     maxSegmentHeight: clampInt($("maxHeight").value, 2000, 32000, DEFAULTS.maxSegmentHeight),
     delay: clampInt($("delay").value, 0, 5000, DEFAULTS.delay),
-    hideFixed: $("hideFixed").checked
+    hideFixed: $("hideFixed").checked,
+    scrollArea: $("scrollArea").value
   };
 }
 
@@ -47,6 +49,7 @@ async function loadOptions() {
     /* fall back to defaults */
   }
   const o = Object.assign({}, DEFAULTS, stored);
+  $("scrollArea").value = o.scrollArea;
   $("format").value = o.format;
   $("quality").value = o.quality;
   $("maxHeight").value = o.maxSegmentHeight;
@@ -122,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveOptions();
   });
   $("quality").addEventListener("input", updateQualityUI);
-  ["quality", "maxHeight", "delay", "hideFixed"].forEach((id) => {
+  ["scrollArea", "quality", "maxHeight", "delay", "hideFixed"].forEach((id) => {
     $(id).addEventListener("change", saveOptions);
   });
 });
