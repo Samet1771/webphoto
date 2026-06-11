@@ -53,7 +53,7 @@ function showNotification(title, message) {
     browser.notifications
       .create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("icons/icon.svg"),
+        iconUrl: browser.runtime.getURL("icons/icon-96.png"),
         title,
         message
       })
