@@ -1,4 +1,4 @@
-# Full Page Screenshot — Firefox Extension
+# FullShot — Firefox Extension
 
 Capture a screenshot of an **entire web page**, not just the visible part. If a
 page is too long to fit in a single image, it's automatically split into
