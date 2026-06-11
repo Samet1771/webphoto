@@ -135,7 +135,7 @@ function makeFilename(title) {
     .trim()
     .slice(0, 80);
   if (!base) base = "screenshot";
-  return `FullShot_${base}_${stamp}`;
+  return `FoxSS_${base}_${stamp}`;
 }
 
 async function downloadBlob(blob, filename) {
