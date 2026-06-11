@@ -340,17 +340,12 @@
   browser.runtime.onMessage.addListener((msg) => {
     if (!msg || !msg.cmd) return false;
     switch (msg.cmd) {
-      case "ping":
-        return Promise.resolve({ ok: true });
       case "prepare":
         return Promise.resolve(prepare(msg.options));
       case "scrollTo":
         return Promise.resolve(scrollToPos(msg.x, msg.y));
       case "hideFloating":
         setFloatingVisible(false);
-        return Promise.resolve({ ok: true });
-      case "showFloating":
-        setFloatingVisible(true);
         return Promise.resolve({ ok: true });
       case "restore":
         restore();
