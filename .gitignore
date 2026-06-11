@@ -1,0 +1,7 @@
+# web-ext build/sign output
+web-ext-artifacts/
+
+# dependencies / tooling
+node_modules/
+npm-debug.log*
+.web-extension-id
