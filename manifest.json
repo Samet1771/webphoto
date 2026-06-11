@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "Full Page Screenshot",
+  "version": "1.0.0",
+  "description": "Capture a screenshot of the entire web page. Long pages are automatically split into multiple images.",
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "storage",
+    "notifications"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Capture Full Page",
+    "default_icon": {
+      "48": "icons/icon.svg",
+      "96": "icons/icon.svg"
+    }
+  },
+  "commands": {
+    "capture-full-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+P"
+      },
+      "description": "Capture the full page"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "full-page-screenshot@webphoto",
+      "strict_min_version": "91.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}
