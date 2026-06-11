@@ -15,14 +15,14 @@ multiple images so nothing gets cut off or fails to save.
 - 📊 **Live progress bar** in the popup, plus a system notification when the file(s) are saved.
 - ⌨️ **Keyboard shortcut** — `Alt+Shift+P`.
 - 🔒 **Minimal permissions** — uses `activeTab` (only the page you capture), no broad host access.
-- 💾 Smart filenames: `FullPage_<page title>_<date>_<time>.png`.
+- 💾 Smart filenames: `FullShot_<page title>_<date>_<time>.png`.
 
 ## Install (temporary, for testing)
 
 1. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
 2. Click **Load Temporary Add-on…**.
 3. Select the `manifest.json` file in this folder.
-4. The camera icon appears in the toolbar — click it, then **Capture Full Page**.
+4. The fox icon appears in the toolbar — click it, then **Capture Full Page**.
 
 > Temporary add-ons are removed when Firefox restarts. To install permanently
 > you'd sign/package it via [AMO](https://addons.mozilla.org/developers/) or
@@ -59,6 +59,16 @@ Firefox's ~32767px canvas limit), and each segment is encoded and saved.
 - **Split when taller than** — max height per image in pixels before splitting (`2000`–`32000`).
 - **Capture delay** — wait after each scroll before capturing (raise it on pages with slow/lazy-loading content).
 - **Hide floating headers** — recommended on for sites with sticky navbars.
+
+## Privacy
+
+FullShot collects **nothing** and sends **nothing** anywhere. Verified by audit:
+
+- **No network requests** — there is no `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, or any remote URL anywhere in the code.
+- **No analytics or telemetry** — no third-party SDKs, no tracking, no "phone home".
+- **Everything stays on your device** — screenshots are built in memory and saved straight to your local Downloads. Your settings live in `storage.local` (this browser only; never synced or uploaded).
+- **Minimal permissions** — `activeTab` (only the page you explicitly capture, only when you click), `downloads` (to save the image), `storage` (to remember your options), `notifications` (the "saved" toast). No `<all_urls>` / broad host access.
+- The manifest formally declares `data_collection_permissions: { required: ["none"] }`.
 
 ## Known limitations
 
