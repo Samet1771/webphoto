@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="options.css" />
+    <title>FoxSS — Settings</title>
+  </head>
+  <body>
+    <main class="card">
+      <header>
+        <img class="logo" src="icons/icon-96.png" alt="" width="44" height="44" />
+        <div>
+          <h1>FoxSS Settings</h1>
+          <p class="sub">Full-page screenshots for Firefox</p>
+        </div>
+      </header>
+
+      <div id="welcome" class="welcome hidden">
+        <h2 class="welcome-title">🦊 Welcome to FoxSS!</h2>
+        <p>
+          FoxSS captures a screenshot of an <strong>entire web page</strong> —
+          not just the part you can see. It scrolls the page (or an inner
+          scrolling panel) for you, stitches every screen together, and saves
+          the result.
+        </p>
+        <ul class="welcome-list">
+          <li><strong>One click, whole page.</strong> Click the fox in your toolbar, or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>.</li>
+          <li><strong>Long pages, sorted.</strong> Tall pages are split into screen-sized images and can be bundled into a single <code>.zip</code>.</li>
+          <li><strong>Yours only.</strong> Everything happens on your device — no accounts, no tracking, nothing sent anywhere.</li>
+        </ul>
+        <p class="welcome-cta">Take a moment to set your preferences below — they save automatically.</p>
+      </div>
+
+      <section>
+        <h2>Toolbar button</h2>
+        <label class="row check">
+          <input type="checkbox" id="captureOnClick" />
+          <span>
+            <strong>Capture immediately on click</strong>
+            <small>Clicking the toolbar icon starts a full-page capture right away and skips the popup. (You can still reach this page and the other actions by right-clicking the icon.)</small>
+          </span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Saving</h2>
+        <label class="row check">
+          <input type="checkbox" id="zipMultiple" />
+          <span>
+            <strong>Bundle multiple images into one .zip</strong>
+            <small>When a long page is split into several images, save them together as a single <code>.zip</code> instead of separate files.</small>
+          </span>
+        </label>
+        <label class="row check">
+          <input type="checkbox" id="copyToClipboard" />
+          <span>
+            <strong>Also copy to clipboard</strong>
+            <small>Copy the screenshot (the first image, for split captures) to the clipboard in addition to saving it. Requires a recent Firefox; if the browser blocks it, the file is still saved.</small>
+          </span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Capture defaults</h2>
+
+        <div class="row">
+          <label for="scrollArea">Scroll area</label>
+          <select id="scrollArea">
+            <option value="auto">Auto-detect</option>
+            <option value="page">Whole page</option>
+            <option value="element">Inner scroll area</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="format">Format</label>
+          <select id="format">
+            <option value="png">PNG · lossless</option>
+            <option value="jpeg">JPEG · smaller files</option>
+          </select>
+        </div>
+
+        <div class="row" id="qualityRow">
+          <label for="quality">JPEG quality</label>
+          <input type="range" id="quality" min="0.5" max="1" step="0.05" />
+          <span id="qualityVal" class="val"></span>
+        </div>
+
+        <div class="row">
+          <label for="maxHeight">Split when taller than</label>
+          <span><input type="number" id="maxHeight" min="600" max="32000" step="100" /> px <small class="hint">(defaults to your screen height)</small></span>
+        </div>
+
+        <div class="row">
+          <label for="delay">Capture delay</label>
+          <span><input type="number" id="delay" min="0" max="5000" step="50" /> ms</span>
+        </div>
+
+        <label class="row check">
+          <input type="checkbox" id="hideFixed" />
+          <span><strong>Hide floating headers while scrolling</strong></span>
+        </label>
+      </section>
+
+      <footer>
+        <span id="saved" class="saved">Settings save automatically.</span>
+        <a href="https://github.com/Samet1771/webphoto" target="_blank" rel="noopener">About FoxSS</a>
+      </footer>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

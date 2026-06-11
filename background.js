@@ -13,13 +13,24 @@
  */
 "use strict";
 
+// Default split height = the user's physical vertical resolution, so each
+// saved image is roughly one screen tall. Clamped to a sane range.
+function screenSplitDefault() {
+  const h = typeof screen !== "undefined" && screen.height ? screen.height : 1080;
+  const dpr = self.devicePixelRatio || 1;
+  return Math.min(32000, Math.max(600, Math.round(h * dpr)));
+}
+
 const DEFAULTS = {
   format: "png",
   quality: 0.92,
-  maxSegmentHeight: 20000, // device px; pages taller than this are split
+  maxSegmentHeight: screenSplitDefault(), // device px; pages taller than this are split
   delay: 250, // ms to wait after scrolling before capturing
   hideFixed: true,
-  scrollArea: "auto" // "auto" | "page" | "element" (inner JS scroll container)
+  scrollArea: "auto", // "auto" | "page" | "element" (inner JS scroll container)
+  zipMultiple: true, // bundle split captures into one .zip
+  copyToClipboard: false, // also copy the (first) image to the clipboard
+  captureOnClick: false // clicking the toolbar icon captures directly (no popup)
 };
 
 // Firefox canvases cap out around 32767px per side; stay comfortably under it.
@@ -150,8 +161,21 @@ async function downloadBlob(blob, filename) {
   }
 }
 
-// Encode every segment canvas and download it. Long captures become
-// "<name>-1of3", "<name>-2of3", ... single captures keep a plain name.
+// Best-effort copy of a canvas (as PNG — Firefox clipboard images are PNG) to
+// the system clipboard. May be blocked by the browser; caller treats failure
+// as non-fatal.
+async function copyImageToClipboard(canvas) {
+  if (typeof ClipboardItem === "undefined" || !navigator.clipboard || !navigator.clipboard.write) {
+    throw new Error("Clipboard image API unavailable in this browser");
+  }
+  const blob = await canvasToBlob(canvas, "image/png");
+  await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+}
+
+// Encode every segment canvas, then save. Multiple images are bundled into a
+// single .zip when that option is on; otherwise each is saved as
+// "<name>-1of3", "<name>-2of3", … (single captures keep a plain name).
+// Optionally also copies the first image to the clipboard.
 async function exportSegments(segments, options, title) {
   const isJpeg = options.format === "jpeg";
   const mime = isJpeg ? "image/jpeg" : "image/png";
@@ -159,6 +183,7 @@ async function exportSegments(segments, options, title) {
   const base = makeFilename(title);
   const total = segments.length;
 
+  const files = [];
   for (let i = 0; i < total; i++) {
     notifyPopup({ type: "progress", phase: "saving", current: i + 1, total });
     let canvas = segments[i].canvas;
@@ -175,9 +200,30 @@ async function exportSegments(segments, options, title) {
     }
     const blob = await canvasToBlob(canvas, mime, options.quality);
     const suffix = total > 1 ? `-${i + 1}of${total}` : "";
-    await downloadBlob(blob, `${base}${suffix}.${ext}`);
+    files.push({ name: `${base}${suffix}.${ext}`, blob });
   }
-  return total;
+
+  // Optional clipboard copy of the first (top) image.
+  let copied = false;
+  if (options.copyToClipboard && segments[0] && segments[0].canvas) {
+    try {
+      await copyImageToClipboard(segments[0].canvas);
+      copied = true;
+    } catch (e) {
+      console.warn("Clipboard copy was blocked:", e);
+    }
+  }
+
+  // Save as a single .zip when there are several images and the option is on.
+  const zipped = files.length > 1 && options.zipMultiple;
+  if (zipped) {
+    const zipBlob = await FoxZip.create(files);
+    await downloadBlob(zipBlob, `${base}.zip`);
+  } else {
+    for (const f of files) await downloadBlob(f.blob, f.name);
+  }
+
+  return { count: files.length, zipped, copied };
 }
 
 async function captureFullPage(tab, options) {
@@ -277,9 +323,9 @@ async function startCapture(mode) {
 
     const options = await getOptions();
 
-    let count;
+    let result;
     if (mode === "visible") {
-      count = await captureVisibleOnly(tab, options);
+      result = await captureVisibleOnly(tab, options);
     } else {
       // Inject the content script (needed for measuring + scrolling).
       try {
@@ -287,16 +333,17 @@ async function startCapture(mode) {
       } catch (e) {
         throw new Error("This page can't be captured (it's a restricted browser page).");
       }
-      count = await captureFullPage(tab, options);
+      result = await captureFullPage(tab, options);
     }
 
-    notifyPopup({ type: "done", count });
-    showNotification(
-      "Screenshot saved",
-      count > 1
-        ? `Saved ${count} images to your Downloads.`
-        : "Saved to your Downloads."
-    );
+    notifyPopup({ type: "done", count: result.count, zipped: result.zipped, copied: result.copied });
+
+    let saveMsg;
+    if (result.zipped) saveMsg = `Saved a .zip of ${result.count} images to your Downloads.`;
+    else if (result.count > 1) saveMsg = `Saved ${result.count} images to your Downloads.`;
+    else saveMsg = "Saved to your Downloads.";
+    if (result.copied) saveMsg += " Copied to clipboard.";
+    showNotification("Screenshot saved", saveMsg);
   } catch (e) {
     console.error("Capture failed:", e);
     notifyPopup({ type: "error", message: e.message || String(e) });
@@ -319,3 +366,72 @@ browser.commands.onCommand.addListener((command) => {
     startCapture("full");
   }
 });
+
+/* ---------------------------------------------------------------------- */
+/* Toolbar button mode, context menu, and first-run welcome               */
+/* ---------------------------------------------------------------------- */
+
+// When "capture on click" is on, remove the popup so clicking the icon fires
+// onClicked (a direct capture); otherwise keep the popup.
+async function applyActionMode() {
+  try {
+    const o = await getOptions();
+    browser.browserAction.setPopup({ popup: o.captureOnClick ? "" : "popup.html" });
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+// Right-click menu on the toolbar icon. Keeps actions + settings reachable
+// even when the popup is disabled.
+function setupMenus() {
+  if (!browser.contextMenus) return;
+  browser.contextMenus.removeAll(() => {
+    const ctx = ["browser_action"];
+    browser.contextMenus.create({ id: "foxss-full", title: "Capture full page", contexts: ctx });
+    browser.contextMenus.create({ id: "foxss-visible", title: "Capture visible area", contexts: ctx });
+    browser.contextMenus.create({ id: "foxss-sep", type: "separator", contexts: ctx });
+    browser.contextMenus.create({ id: "foxss-settings", title: "Settings…", contexts: ctx });
+  });
+}
+
+if (browser.contextMenus) {
+  browser.contextMenus.onClicked.addListener((info) => {
+    switch (info.menuItemId) {
+      case "foxss-full":
+        startCapture("full");
+        break;
+      case "foxss-visible":
+        startCapture("visible");
+        break;
+      case "foxss-settings":
+        browser.runtime.openOptionsPage();
+        break;
+    }
+  });
+}
+
+browser.browserAction.onClicked.addListener(() => startCapture("full"));
+
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.options) applyActionMode();
+});
+
+browser.runtime.onInstalled.addListener((details) => {
+  setupMenus();
+  applyActionMode();
+  if (details.reason === "install") {
+    browser.tabs.create({ url: browser.runtime.getURL("options.html#welcome") });
+  }
+});
+
+if (browser.runtime.onStartup) {
+  browser.runtime.onStartup.addListener(() => {
+    setupMenus();
+    applyActionMode();
+  });
+}
+
+// Apply on script load too (covers temporary installs and reloads).
+setupMenus();
+applyActionMode();

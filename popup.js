@@ -10,26 +10,18 @@
 const DEFAULTS = {
   format: "png",
   quality: 0.92,
-  maxSegmentHeight: 20000,
-  delay: 250,
   hideFixed: true,
   scrollArea: "auto"
 };
 
 const $ = (id) => document.getElementById(id);
 
-function clampInt(value, min, max, fallback) {
-  let n = parseInt(value, 10);
-  if (!Number.isFinite(n)) n = fallback;
-  return Math.min(max, Math.max(min, n));
-}
-
+// Only the fields the popup actually controls. Split height and capture delay
+// live on the full settings page now.
 function readOptions() {
   return {
     format: $("format").value,
     quality: parseFloat($("quality").value),
-    maxSegmentHeight: clampInt($("maxHeight").value, 2000, 32000, DEFAULTS.maxSegmentHeight),
-    delay: clampInt($("delay").value, 0, 5000, DEFAULTS.delay),
     hideFixed: $("hideFixed").checked,
     scrollArea: $("scrollArea").value
   };
@@ -52,15 +44,16 @@ async function loadOptions() {
   $("scrollArea").value = o.scrollArea;
   $("format").value = o.format;
   $("quality").value = o.quality;
-  $("maxHeight").value = o.maxSegmentHeight;
-  $("delay").value = o.delay;
   $("hideFixed").checked = o.hideFixed;
   updateQualityUI();
 }
 
+// Merge-save: only overwrite the popup's own fields, preserving settings owned
+// by the options page (split height, delay, zip, clipboard, capture-on-click).
 async function saveOptions() {
   try {
-    await browser.storage.local.set({ options: readOptions() });
+    const cur = (await browser.storage.local.get("options")).options || {};
+    await browser.storage.local.set({ options: Object.assign({}, cur, readOptions()) });
   } catch (e) {
     /* non-fatal */
   }
@@ -98,12 +91,16 @@ browser.runtime.onMessage.addListener((msg) => {
           : `Capturing ${msg.current} of ${msg.total}…`;
       break;
     }
-    case "done":
+    case "done": {
       $("barFill").style.width = "100%";
-      $("status").textContent =
-        msg.count > 1 ? `Done — saved ${msg.count} images.` : "Done — saved to Downloads.";
+      let txt;
+      if (msg.zipped) txt = `Done — saved a .zip of ${msg.count} images.`;
+      else txt = msg.count > 1 ? `Done — saved ${msg.count} images.` : "Done — saved to Downloads.";
+      if (msg.copied) txt += " Copied.";
+      $("status").textContent = txt;
       setTimeout(() => setBusy(false), 2200);
       break;
+    }
     case "error":
       $("progress").classList.remove("hidden");
       $("barFill").style.width = "0%";
@@ -125,7 +122,12 @@ document.addEventListener("DOMContentLoaded", () => {
     saveOptions();
   });
   $("quality").addEventListener("input", updateQualityUI);
-  ["scrollArea", "quality", "maxHeight", "delay", "hideFixed"].forEach((id) => {
+  ["scrollArea", "quality", "hideFixed"].forEach((id) => {
     $(id).addEventListener("change", saveOptions);
+  });
+
+  $("openSettings").addEventListener("click", () => {
+    browser.runtime.openOptionsPage();
+    window.close();
   });
 });
