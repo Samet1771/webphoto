@@ -130,6 +130,23 @@ button:disabled {
   user-select: none;
 }
 
+button.link {
+  width: 100%;
+  margin: 6px 0 2px;
+  padding: 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+button.link:hover {
+  border-color: var(--accent);
+  background: rgba(224, 116, 54, 0.08);
+}
+
 .options[open] summary {
   margin-bottom: 4px;
 }

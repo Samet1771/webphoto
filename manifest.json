@@ -16,10 +16,16 @@
     "activeTab",
     "downloads",
     "storage",
-    "notifications"
+    "notifications",
+    "clipboardWrite",
+    "contextMenus"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["lib/zip.js", "background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
   "browser_action": {
     "default_popup": "popup.html",
