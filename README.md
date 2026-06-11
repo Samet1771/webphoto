@@ -99,3 +99,11 @@ FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 - Infinite-scroll / lazy-loading pages are measured once at the start; content that only loads as you scroll past the initial height may not be captured. Increasing the capture delay helps.
 - **Transform-based scroll-jacking** (libraries like fullPage.js that move content with CSS transforms on wheel events instead of real scrolling) exposes no scrollable element, so only the first screen can be captured. Standard `overflow:auto/scroll` containers *are* supported.
 - A captured scroll container is assumed to fit within the viewport (the usual case). If a container is itself taller than the window, only its on-screen portion is captured.
+
+## License
+
+FoxSS is free software, licensed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+
+Copyright (C) 2026 Samet Guler.
+
+You may use, study, modify, and redistribute it, but **any distributed copy or derivative must remain open source under the GPL and must credit the original author**. The software comes with no warranty, to the extent permitted by law.
