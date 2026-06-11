@@ -21,44 +21,6 @@ multiple images so nothing gets cut off or fails to save.
 - 🔒 **Local-only, minimal permissions** — no broad host access; nothing leaves your device.
 - 💾 Smart filenames: `FoxSS_<page title>_<date>_<time>.png`.
 
-## Install (temporary, for testing)
-
-1. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on…**.
-3. Select the `manifest.json` file in this folder.
-4. The fox icon appears in the toolbar — click it, then **Capture Full Page**.
-
-> Temporary add-ons are removed when Firefox restarts. To install permanently
-> you'd sign/package it via [AMO](https://addons.mozilla.org/developers/) or
-> `web-ext`.
-
-### Optional: run it with web-ext
-
-```bash
-npm install --global web-ext
-web-ext run            # launches Firefox with the extension loaded
-web-ext lint           # validates the manifest and code
-web-ext build          # produces a .zip in ./web-ext-artifacts
-```
-
-## How it works
-
-| File | Role |
-| --- | --- |
-| `manifest.json` | Extension metadata, permissions, popup, options page, shortcut. |
-| `popup.html/.css/.js` | Toolbar UI: capture buttons, quick options, progress bar. |
-| `options.html/.css/.js` | Full settings page (also the first-run welcome screen). |
-| `background.js` | Orchestrates scrolling + `captureVisibleTab`, stitches tiles, splits long pages, zips/downloads, manages the toolbar mode + context menu. |
-| `content.js` | Injected on demand; measures the page, hides the scrollbar, scrolls precisely, hides floating headers. |
-| `lib/zip.js` | Tiny self-contained ZIP writer (no third-party code, no network). |
-| `assets/settings-bg.svg` | Background art for the settings page. |
-
-The background script scrolls the page one viewport at a time, captures each
-visible frame, and draws it onto a canvas at the exact scroll offset (scaled by
-`devicePixelRatio` for sharp output on HiDPI displays). New canvas "segments"
-are started whenever the image would exceed the split threshold (kept under
-Firefox's ~32767px canvas limit), and each segment is encoded and saved.
-
 ## Settings
 
 Open the settings page from the popup (**⚙ All settings…**), by right-clicking
