@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Capture a screenshot of the entire web page. Long pages are automatically split into multiple images.",
   "author": "Samet Guler",
-  "homepage_url": "https://github.com/kgbaslanii/webphoto",
+  "homepage_url": "https://github.com/Samet1771/webphoto",
   "icons": {
     "48": "icons/icon.svg",
     "96": "icons/icon.svg"
