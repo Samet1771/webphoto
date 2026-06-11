@@ -1,4 +1,4 @@
-# FullShot — Firefox Extension
+# FoxSS — Firefox Extension
 
 Capture a screenshot of an **entire web page**, not just the visible part. If a
 page is too long to fit in a single image, it's automatically split into
@@ -15,7 +15,7 @@ multiple images so nothing gets cut off or fails to save.
 - 📊 **Live progress bar** in the popup, plus a system notification when the file(s) are saved.
 - ⌨️ **Keyboard shortcut** — `Alt+Shift+P`.
 - 🔒 **Minimal permissions** — uses `activeTab` (only the page you capture), no broad host access.
-- 💾 Smart filenames: `FullShot_<page title>_<date>_<time>.png`.
+- 💾 Smart filenames: `FoxSS_<page title>_<date>_<time>.png`.
 
 ## Install (temporary, for testing)
 
@@ -62,7 +62,7 @@ Firefox's ~32767px canvas limit), and each segment is encoded and saved.
 
 ## Privacy
 
-FullShot collects **nothing** and sends **nothing** anywhere. Verified by audit:
+FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 
 - **No network requests** — there is no `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, or any remote URL anywhere in the code.
 - **No analytics or telemetry** — no third-party SDKs, no tracking, no "phone home".
