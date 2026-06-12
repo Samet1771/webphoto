@@ -1,27 +1,24 @@
-FoxSS
+FoxSS — License
 
 Copyright (C) 2026 Samet Guler. All rights reserved.
 
-This software, including its source code, assets, icons, and
-documentation (collectively, "the Software"), is proprietary and
-confidential.
+You are free to install and use FoxSS, at no cost, for its intended
+purpose, as distributed through its official channels (for example,
+addons.mozilla.org).
 
-No permission is granted to any person or entity to use, copy, modify,
-merge, publish, distribute, sublicense, reverse engineer for the purpose
-of copying, create derivative works of, or sell copies of the Software,
-in whole or in part, by any means, without the prior express written
-permission of the copyright holder.
+Without the prior written permission of the copyright holder, you may NOT:
 
-As an end user, you may install and run the official build of the
-Software as distributed through its official channels (for example,
-addons.mozilla.org) for its intended purpose. This permission applies
-only to the unmodified official build and grants no rights to the source
-code, nor any right to redistribute or repackage the Software.
+  * modify FoxSS or create derivative works based on it; or
+  * copy, redistribute, repackage, re-host, mirror, or sell FoxSS, or any
+    part of its source code, assets, or icons, in whole or in part.
+
+All rights not expressly granted above are reserved by the copyright
+holder. Permission to use does not transfer ownership of, or any
+intellectual-property rights in, FoxSS.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
 NO EVENT SHALL THE AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
-DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR
-OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR
-THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH
+THE SOFTWARE OR ITS USE.

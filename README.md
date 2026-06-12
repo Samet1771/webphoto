@@ -64,6 +64,6 @@ FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 
 ## License
 
-Copyright (C) 2026 Samet Guler. **All rights reserved.** — see [`LICENSE`](LICENSE).
+Copyright (C) 2026 Samet Guler. All rights reserved. — see [`LICENSE`](LICENSE).
 
-FoxSS is proprietary software. You may install and use the official build (e.g. from addons.mozilla.org), but you may **not** copy, modify, redistribute, reverse engineer to copy, or create derivative works from its source code without prior written permission. The software comes with no warranty, to the extent permitted by law.
+**FoxSS is free to install and use.** Please don't **modify**, **copy**, **redistribute**, or **repackage** it (or its source code, assets, or icon) without written permission. No warranty, to the extent permitted by law.
