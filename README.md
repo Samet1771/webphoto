@@ -53,7 +53,7 @@ FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 - **No analytics or telemetry** — no third-party SDKs, no tracking, no "phone home".
 - **Everything stays on your device** — screenshots are built in memory and saved straight to your local Downloads. Zips are built locally with a bundled, no-network ZIP writer. Your settings live in `storage.local` (this browser only; never synced or uploaded).
 - **Minimal, local permissions** — `activeTab` (only the page you explicitly capture, only when you act), `downloads` (to save), `storage` (your options), `notifications` (the "saved" toast), `clipboardWrite` (only to place *your* screenshot on the clipboard, and only if you enable it), `contextMenus` (the toolbar right-click menu). No `<all_urls>` / broad host access.
-- The manifest formally declares `data_collection_permissions: { required: ["none"] }`.
+- FoxSS requests no data-collection permissions, and "no data collected" is declared on its add-on listing.
 
 ## Known limitations
 
@@ -64,8 +64,6 @@ FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 
 ## License
 
-FoxSS is free software, licensed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+Copyright (C) 2026 Samet Guler. **All rights reserved.** — see [`LICENSE`](LICENSE).
 
-Copyright (C) 2026 Samet Guler.
-
-You may use, study, modify, and redistribute it, but **any distributed copy or derivative must remain open source under the GPL and must credit the original author**. The software comes with no warranty, to the extent permitted by law.
+FoxSS is proprietary software. You may install and use the official build (e.g. from addons.mozilla.org), but you may **not** copy, modify, redistribute, reverse engineer to copy, or create derivative works from its source code without prior written permission. The software comes with no warranty, to the extent permitted by law.
