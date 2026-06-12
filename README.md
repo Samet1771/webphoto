@@ -53,7 +53,7 @@ FoxSS collects **nothing** and sends **nothing** anywhere. Verified by audit:
 - **No analytics or telemetry** — no third-party SDKs, no tracking, no "phone home".
 - **Everything stays on your device** — screenshots are built in memory and saved straight to your local Downloads. Zips are built locally with a bundled, no-network ZIP writer. Your settings live in `storage.local` (this browser only; never synced or uploaded).
 - **Minimal, local permissions** — `activeTab` (only the page you explicitly capture, only when you act), `downloads` (to save), `storage` (your options), `notifications` (the "saved" toast), `clipboardWrite` (only to place *your* screenshot on the clipboard, and only if you enable it), `contextMenus` (the toolbar right-click menu). No `<all_urls>` / broad host access.
-- The manifest formally declares `data_collection_permissions: { required: ["none"] }`.
+- FoxSS requests no data-collection permissions, and "no data collected" is declared on its add-on listing.
 
 ## Known limitations
 
